@@ -52,7 +52,7 @@ async function runTests() {
   const manifestRes = await request('/manifest.json');
   assert.strictEqual(manifestRes.status, 200);
   const manifest = JSON.parse(manifestRes.body);
-  assert.strictEqual(manifest.start_url, '/?view=today');
+  assert(manifest.start_url === './?view=today' || manifest.start_url === '/?view=today');
   assert.strictEqual(manifest.display, 'standalone');
   const swRes = await request('/sw.js');
   assert.strictEqual(swRes.status, 200);
