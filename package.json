@@ -1,0 +1,17 @@
+{
+  "name": "clearspend-pro-max",
+  "version": "2.6.0",
+  "description": "ClearSpend Pro Max — iPhone 13 Pro Max Personal Expense, Budget, Recall & Family Transparency PWA (October 2026 Edition)",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js",
+    "dev": "node server.js",
+    "test": "node test-usability.js"
+  },
+  "engines": {
+    "node": ">=18.0.0"
+  },
+  "dependencies": {
+    "qrcode": "^1.5.4"
+  }
+}
