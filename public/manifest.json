@@ -1,0 +1,49 @@
+{
+  "name": "ClearSpend Pro Max — Daily Expense & Family Budget",
+  "short_name": "ClearSpend",
+  "description": "Zero-friction daily expense recall in PKR (Rs) & multi-currency, monthly budget guardrails, and 1-tap family sharing built for iPhone 13 Pro Max.",
+  "start_url": "./?view=today",
+  "scope": "./",
+  "display": "standalone",
+  "orientation": "portrait",
+  "background_color": "#080B11",
+  "theme_color": "#080B11",
+  "icons": [
+    {
+      "src": "./icon.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "any maskable"
+    }
+  ],
+  "shortcuts": [
+    {
+      "name": "Today's Spending (Instant)",
+      "short_name": "Today",
+      "description": "Open directly to today's spending ledger",
+      "url": "./?view=today",
+      "icons": [{ "src": "./icon.svg", "sizes": "192x192" }]
+    },
+    {
+      "name": "+ Quick Log Expense Now",
+      "short_name": "Quick Log",
+      "description": "Jump straight to logging a new expense for today",
+      "url": "./?action=quick-add",
+      "icons": [{ "src": "./icon.svg", "sizes": "192x192" }]
+    },
+    {
+      "name": "Share Family Summary",
+      "short_name": "Family Share",
+      "description": "Generate and share where money went this month",
+      "url": "./?view=family",
+      "icons": [{ "src": "./icon.svg", "sizes": "192x192" }]
+    },
+    {
+      "name": "Monthly Budget & Leak Review",
+      "short_name": "Monthly",
+      "description": "See where money went across big and micro spendings",
+      "url": "./?view=monthly",
+      "icons": [{ "src": "./icon.svg", "sizes": "192x192" }]
+    }
+  ]
+}
