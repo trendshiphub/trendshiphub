@@ -1,0 +1,813 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover" />
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+  <meta name="apple-mobile-web-app-title" content="ClearSpend" />
+  <meta name="mobile-web-app-capable" content="yes" />
+  <meta name="theme-color" content="#080B11" />
+  <title>ClearSpend — Minimal iPhone 13 Pro Max Expense &amp; Budget Ledger (PKR / Multi-Currency)</title>
+  <link rel="manifest" href="manifest.json" />
+  <link rel="apple-touch-icon" href="icon.svg" />
+  <link rel="icon" type="image/svg+xml" href="icon.svg" />
+  <link rel="stylesheet" href="styles.css" />
+</head>
+<body class="frame-mode">
+  <!-- Minimal Floating Preview Bar (Hidden automatically on iPhone or Print) -->
+  <header class="sim-toolbar no-print" aria-label="iPhone 13 Pro Max Preview Controls">
+    <div class="sim-toolbar-left">
+      <span class="sim-badge-device">iPhone 13 Pro Max · 428×926 pt</span>
+      <span class="sim-badge-status" id="pwaStatusBadge">iOS 26 Minimal Design · PKR &amp; Multi-Currency</span>
+    </div>
+    <div class="sim-toolbar-actions">
+      <button type="button" class="sim-btn" id="toggleFrameBtn" title="Toggle iPhone Frame vs Fullscreen">
+        Frame / Full
+      </button>
+      <button type="button" class="sim-btn" id="toggleThumbZoneBtn" title="Inspect Fitts's Law &amp; Steven Hoober Thumb Zone">
+        Thumb Zone
+      </button>
+      <button type="button" class="sim-btn" id="toggleThemeBtn" title="Switch Dark / Light Appearance">
+        Dark / Light
+      </button>
+      <button type="button" class="sim-btn sim-btn-accent" id="openInstallGuideBtn">
+        Install on iPhone
+      </button>
+    </div>
+  </header>
+
+  <div class="workspace-stage">
+    <!-- iPhone 13 Pro Max Hardware Shell (428 x 926 pt logical resolution) -->
+    <div class="iphone-13-pro-max-shell" id="iphoneShell">
+      <!-- iOS Status Bar & Notch -->
+      <div class="ios-status-bar no-print">
+        <div class="ios-time" id="iosClock">9:41</div>
+        <div class="iphone-13-notch" aria-hidden="true">
+          <div class="notch-speaker"></div>
+          <div class="notch-camera"></div>
+        </div>
+        <div class="ios-status-icons" aria-hidden="true">
+          <span>5G</span>
+          <span>100%</span>
+        </div>
+      </div>
+
+      <!-- Fitts's Law & Steven Hoober Thumb-Zone Overlay -->
+      <div class="thumb-zone-overlay hidden" id="thumbZoneOverlay" aria-hidden="true">
+        <div class="tz-band tz-hard">
+          <strong>GLANCE ZONE (Top 22%)</strong>
+          <span>Read-only balances &amp; budget status — zero one-handed stretching needed.</span>
+        </div>
+        <div class="tz-band tz-natural-mid">
+          <strong>COMFORT ZONE (Middle 38%)</strong>
+          <span>Date scrubber, 1-tap PKR/USD recall chips &amp; quick amount entry.</span>
+        </div>
+        <div class="tz-band tz-easy">
+          <strong>PRIMARY THUMB ARC (Bottom 40%)</strong>
+          <span>≥44pt Save button, Today's itemized ledger &amp; 5-tab navigation dock.</span>
+        </div>
+      </div>
+
+      <!-- Ultra-Minimal App Header -->
+      <header class="app-top-bar no-print">
+        <div class="app-brand-row">
+          <div class="brand-title-group">
+            <span class="brand-logo-dot"></span>
+            <div>
+              <h1 class="app-title">ClearSpend</h1>
+              <p class="app-subtitle" id="headerLaunchSubtitle">Direct Today Ledger · Oct 2026</p>
+            </div>
+          </div>
+
+          <div class="header-right-actions">
+            <!-- Instant 1-Tap Currency Switcher (PKR Default + Multi-Currency) -->
+            <label class="currency-pill-wrap" title="Switch Currency (PKR Rs, USD $, AED, GBP, EUR, SAR)">
+              <select id="quickCurrencySelect" aria-label="Select Currency">
+                <option value="PKR">🇵🇰 PKR (Rs)</option>
+                <option value="USD">🇺🇸 USD ($)</option>
+                <option value="AED">🇦🇪 AED</option>
+                <option value="GBP">🇬🇧 GBP (£)</option>
+                <option value="EUR">🇪🇺 EUR (€)</option>
+                <option value="SAR">🇸🇦 SAR</option>
+              </select>
+            </label>
+            <button type="button" class="icon-pill-btn" id="reconcileModalBtn" title="Reconcile Bank Balance &amp; Find Unlogged Gaps">
+              Gap
+            </button>
+            <button type="button" class="icon-pill-btn" id="dataModeBtn" title="Account Balance, Monthly Budget &amp; Data Settings">
+              Setup
+            </button>
+            <button type="button" class="icon-pill-btn" id="headerQrBtn" style="border-color:var(--border-strong); color:var(--accent-emerald);" title="Scan QR Code or Copy Link to Open on Your iPhone 13 Pro Max">
+              📲 iPhone
+            </button>
+          </div>
+        </div>
+
+        <!-- Minimalist Financial Pulse Bar (Nielsen #1: Visibility of System Status) -->
+        <section class="pulse-strip" aria-label="Live Account and Budget Status">
+          <div class="pulse-card pulse-account" id="pulseAccountCard">
+            <span class="pulse-label">Bank + Cash Left</span>
+            <strong class="pulse-value" id="topAccountBalance">Rs 184,550</strong>
+            <span class="pulse-meta" id="topAccountSub">of Rs 285,000</span>
+          </div>
+          <div class="pulse-card pulse-budget">
+            <span class="pulse-label">Oct Budget Left</span>
+            <strong class="pulse-value" id="topBudgetRemaining">Rs 79,550</strong>
+            <span class="pulse-meta" id="topBudgetSub">of Rs 180,000</span>
+          </div>
+          <div class="pulse-card pulse-safe" id="pulseSafeCard">
+            <span class="pulse-label">Safe Daily Limit</span>
+            <strong class="pulse-value" id="topSafeDaily">Rs 4,580/d</strong>
+            <span class="pulse-meta" id="topSafeSub">21 days left</span>
+          </div>
+        </section>
+      </header>
+
+      <!-- Main Scrollable Viewport -->
+      <main class="app-viewport" id="appViewport">
+
+        <!-- ================================================================
+             VIEW 1: TODAY'S SPENDING (0-TAP DIRECT LAUNCH)
+             ================================================================ -->
+        <section class="view-panel active" id="view-today" aria-label="Today's Spending and Instant Logger">
+
+          <!-- Clean Hero Today Bento Card + 7-Day Date Scrubber -->
+          <div class="today-hero-bento">
+            <div class="date-nav-top">
+              <button type="button" class="date-step-btn" id="prevDayBtn" aria-label="Previous Day">‹</button>
+              <div class="active-date-badge">
+                <span class="direct-tag" id="activeDatePill">TODAY · DIRECT LAUNCH</span>
+                <h2 class="active-date-heading" id="activeDateHeading">Sun, Oct 11, 2026</h2>
+              </div>
+              <button type="button" class="date-step-btn date-today-pill" id="todayJumpBtn" aria-label="Jump to Today">Today</button>
+              <button type="button" class="date-step-btn" id="nextDayBtn" aria-label="Next Day">›</button>
+            </div>
+
+            <!-- Hero Daily Spend Display -->
+            <div class="day-status-banner" id="dayStatusBanner">
+              <div class="day-status-left">
+                <span class="day-status-label" id="selectedDayLabel">Spent Today (Oct 11)</span>
+                <div class="day-status-amount-row">
+                  <strong class="day-status-total" id="selectedDayTotal">Rs 16,670</strong>
+                  <span class="day-status-count" id="selectedDayCount">3 items</span>
+                </div>
+              </div>
+              <div class="day-status-right">
+                <div class="safe-meter-pill" id="daySafeBadge">Safe: Rs 4,580/d</div>
+                <button type="button" class="micro-recall-trigger" id="openRecallPromptBtn">
+                  20s Recall Check
+                </button>
+              </div>
+            </div>
+
+            <!-- Minimal 7-Day Scrubber Strip -->
+            <div class="week-strip" id="weekStrip" role="tablist" aria-label="Quick 7-Day Selector"></div>
+          </div>
+
+          <!-- STREAMLINED 2-TAP EXPENSE COMPOSER -->
+          <section class="quick-log-card" id="quickLogCard" aria-label="Log Expense for Selected Date">
+            <div class="quick-log-header">
+              <div>
+                <h3 class="section-title">Quick Entry</h3>
+                <p class="section-hint">Auto-stamped for <strong id="formDateStampLabel">Oct 11, 2026</strong> · Tap a preset or enter amount</p>
+              </div>
+              <span class="tap-speed-badge" id="activeCurrencyModeTag">PKR Mode</span>
+            </div>
+
+            <!-- Recognition Over Recall: Dynamic Currency-Aware Memory Chips -->
+            <div class="memory-chips-scroll" id="memoryChipsContainer" aria-label="1-Tap Common Expense Presets">
+              <button type="button" class="memory-chip" data-title="Karak Chai &amp; Snack" data-amount="350" data-cat="coffee" data-who="Self" data-need="want">Chai &amp; Snack · Rs 350</button>
+              <button type="button" class="memory-chip" data-title="Household Groceries &amp; Milk" data-amount="4500" data-cat="groceries" data-who="Family / Household" data-need="need">Groceries · Rs 4,500</button>
+              <button type="button" class="memory-chip" data-title="Petrol / InDrive / Ride" data-amount="2500" data-cat="transport" data-who="Self" data-need="need">Petrol / Ride · Rs 2,500</button>
+              <button type="button" class="memory-chip" data-title="Lunch / Biryani / Meal" data-amount="1200" data-cat="food" data-who="Self" data-need="want">Lunch · Rs 1,200</button>
+              <button type="button" class="memory-chip" data-title="Family / Home Expense" data-amount="3000" data-cat="family" data-who="Family / Household" data-need="family">Family · Rs 3,000</button>
+              <button type="button" class="memory-chip" data-title="Pharmacy &amp; Medicine" data-amount="1500" data-cat="health" data-who="Family / Household" data-need="need">Pharmacy · Rs 1,500</button>
+              <button type="button" class="memory-chip" data-title="Small Cash / Parking Tip" data-amount="200" data-cat="transport" data-who="Self" data-need="impulse">Cash / Tip · Rs 200</button>
+            </div>
+
+            <form id="expenseForm" class="expense-form" novalidate>
+              <input type="hidden" id="editExpenseId" value="" />
+              <div class="form-primary-row">
+                <div class="amount-input-wrap">
+                  <span class="currency-prefix" id="formCurrencySymbol">Rs</span>
+                  <input
+                    type="number"
+                    step="any"
+                    min="0.01"
+                    inputmode="decimal"
+                    id="expenseAmount"
+                    placeholder="0"
+                    aria-label="Expense Amount"
+                    required
+                  />
+                </div>
+                <div class="title-input-wrap">
+                  <input
+                    type="text"
+                    id="expenseTitle"
+                    placeholder="What did you spend on? (e.g. Groceries, Petrol, Chai)"
+                    aria-label="Expense Title or Description"
+                    required
+                  />
+                </div>
+              </div>
+
+              <!-- Minimal Category Selector Strip -->
+              <div class="category-pills-grid" id="categoryPillsGrid" role="radiogroup" aria-label="Expense Category"></div>
+
+              <!-- Progressive Disclosure Toggle -->
+              <div class="progressive-bar">
+                <button type="button" class="expand-details-btn" id="toggleDetailsBtn" aria-expanded="false">
+                  <span>Account, Who For, Store, Necessity &amp; Note</span>
+                  <span class="chevron" id="detailsChevron">+</span>
+                </button>
+              </div>
+
+              <!-- Expandable Complete Recall Fields -->
+              <div class="extra-fields-panel hidden" id="extraFieldsPanel">
+                <div class="fields-grid-2">
+                  <label class="field-label">
+                    <span>Who Was This For?</span>
+                    <select id="expenseWhoFor">
+                      <option value="Family / Household">Family / Household</option>
+                      <option value="Self">Self / Personal</option>
+                      <option value="Parents / Relatives">Parents / Ammi &amp; Abbu</option>
+                      <option value="Kids / Family">Kids / School</option>
+                      <option value="Spouse / Partner">Spouse / Partner</option>
+                      <option value="Friends / Shared">Shared / Split</option>
+                    </select>
+                  </label>
+                  <label class="field-label">
+                    <span>Spend Nature</span>
+                    <select id="expenseNecessity">
+                      <option value="need">Essential (Need)</option>
+                      <option value="family">Family Priority</option>
+                      <option value="want">Lifestyle (Want)</option>
+                      <option value="impulse">Impulse / Unplanned</option>
+                    </select>
+                  </label>
+                </div>
+
+                <div class="fields-grid-3">
+                  <label class="field-label">
+                    <span>Payment Account / Rail</span>
+                    <select id="expensePayment">
+                      <option value="SadaPay">SadaPay</option>
+                      <option value="NayaPay">NayaPay</option>
+                      <option value="Meezan Debit Card">Meezan / Bank Card</option>
+                      <option value="Raast Transfer">Raast Instant Transfer</option>
+                      <option value="EasyPaisa / JazzCash">EasyPaisa / JazzCash</option>
+                      <option value="Cash">Cash</option>
+                      <option value="Apple Pay">Apple Pay / Foreign Card</option>
+                      <option value="Credit Card">Credit Card</option>
+                    </select>
+                  </label>
+                  <label class="field-label">
+                    <span>Date</span>
+                    <input type="date" id="expenseDate" value="2026-10-11" />
+                  </label>
+                  <label class="field-label">
+                    <span>Time</span>
+                    <input type="time" id="expenseTime" value="14:30" />
+                  </label>
+                </div>
+
+                <div class="fields-grid-2">
+                  <label class="field-label">
+                    <span>Store / Merchant / Recipient</span>
+                    <input type="text" id="expenseMerchant" placeholder="e.g. Imtiaz, PSO, D.Watson, Local Mart" />
+                  </label>
+                  <label class="field-label">
+                    <span>Memory Note (Items / Reason)</span>
+                    <input type="text" id="expenseNote" placeholder="e.g. Paid for groceries + kids snacks" />
+                  </label>
+                </div>
+              </div>
+
+              <div class="form-submit-row">
+                <button type="submit" class="primary-save-btn" id="saveExpenseBtn">
+                  <span id="saveExpenseBtnText">Save to Today (Oct 11)</span>
+                </button>
+                <button type="button" class="cancel-edit-btn hidden" id="cancelEditBtn">Cancel</button>
+              </div>
+            </form>
+          </section>
+
+          <!-- TODAY'S ITEMIZED SPENDING LIST -->
+          <section class="ledger-section" aria-label="Selected Date Itemized Spending">
+            <div class="ledger-header-row">
+              <div>
+                <h3 class="section-title" id="dayLedgerTitle">Sun, Oct 11 Ledger</h3>
+                <p class="section-hint">Every small &amp; large transaction recorded with recall metadata</p>
+              </div>
+              <div class="filter-mini-pills">
+                <button type="button" class="mini-pill active" data-dayfilter="all">All</button>
+                <button type="button" class="mini-pill" data-dayfilter="micro" id="dayMicroFilterPill">Small</button>
+                <button type="button" class="mini-pill" data-dayfilter="big" id="dayBigFilterPill">Big</button>
+              </div>
+            </div>
+            <div class="expense-list" id="todayExpenseList"></div>
+          </section>
+        </section>
+
+        <!-- ================================================================
+             VIEW 2: MONTHLY INSIGHTS, LEAK DETECTOR & FULL RECALL
+             ================================================================ -->
+        <section class="view-panel" id="view-monthly" aria-label="Monthly Budget, Silent Leaks &amp; Full Recall">
+          <div class="panel-hero-card">
+            <div class="panel-hero-top">
+              <div>
+                <span class="eyebrow-tag">OCTOBER 2026 OVERVIEW</span>
+                <h2 class="panel-main-title">Monthly Flow &amp; Leak Analysis</h2>
+              </div>
+              <button type="button" class="pill-cta-btn" id="jumpToShareFromMonthlyBtn">Share Report</button>
+            </div>
+
+            <!-- Account Zero-Protection Waterfall -->
+            <div class="waterfall-grid">
+              <div class="wf-box">
+                <span class="wf-label">Opening Balance</span>
+                <strong class="wf-val" id="mStartBalance">Rs 285,000</strong>
+              </div>
+              <div class="wf-minus">−</div>
+              <div class="wf-box wf-spent">
+                <span class="wf-label">Oct Spent</span>
+                <strong class="wf-val" id="mTotalSpent">Rs 100,450</strong>
+              </div>
+              <div class="wf-minus">=</div>
+              <div class="wf-box wf-left">
+                <span class="wf-label">Balance Left</span>
+                <strong class="wf-val" id="mAccountLeft">Rs 184,550</strong>
+              </div>
+            </div>
+
+            <!-- Monthly Budget Progress Bar -->
+            <div class="budget-progress-wrap">
+              <div class="budget-progress-labels">
+                <span id="mBudgetUsedLabel">Budget Used: Rs 100,450 of Rs 180,000</span>
+                <span id="mBudgetPacingLabel">On Track</span>
+              </div>
+              <div class="progress-track">
+                <div class="progress-fill" id="mBudgetBarFill" style="width: 55%"></div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Small Silent Leaks vs Big Spendings -->
+          <div class="insight-card" aria-label="Small vs Big Spend Analyzer">
+            <h3 class="section-title">Small Daily Leaks vs. Big Outlays</h3>
+            <p class="section-hint">Accounts hit zero when frequent small expenses add up alongside major bills:</p>
+            <div class="size-split-grid" id="sizeSplitGrid"></div>
+          </div>
+
+          <!-- Category Breakdown -->
+          <div class="insight-card" aria-label="Spending by Category">
+            <div class="card-row-between">
+              <div>
+                <h3 class="section-title">By Category</h3>
+                <p class="section-hint">Tap any category to filter the ledger below</p>
+              </div>
+              <button type="button" class="text-link-btn hidden" id="clearCategoryFilterBtn">Reset Filter</button>
+            </div>
+            <div class="category-bars-list" id="categoryBarsList"></div>
+          </div>
+
+          <!-- Who Was It Spent On -->
+          <div class="insight-card" aria-label="Spending by Beneficiary">
+            <h3 class="section-title">Who It Was Spent On</h3>
+            <p class="section-hint">Clear breakdown across Family, Parents, Kids, and Personal</p>
+            <div class="who-breakdown-grid" id="whoBreakdownGrid"></div>
+          </div>
+
+          <!-- October 2026 Daily Spending Map -->
+          <div class="insight-card" aria-label="October 2026 Daily Spending Calendar">
+            <h3 class="section-title">October 2026 Daily Map</h3>
+            <p class="section-hint">Tap any day to jump directly to its itemized ledger</p>
+            <div class="calendar-grid" id="monthlyCalendarGrid"></div>
+          </div>
+
+          <!-- Recurring Monthly Bills -->
+          <div class="insight-card" aria-label="Recurring Monthly Bills">
+            <h3 class="section-title">Fixed Monthly Bills &amp; Dues</h3>
+            <p class="section-hint">Track scheduled utilities, internet, and school fees</p>
+            <div class="recurring-list" id="recurringBillsList"></div>
+          </div>
+
+          <!-- Full Month Searchable Ledger -->
+          <div class="insight-card" aria-label="Full Month Searchable Expense Log">
+            <h3 class="section-title">Complete October Recall Ledger</h3>
+            <div class="search-filter-bar">
+              <input
+                type="search"
+                id="monthlySearchInput"
+                placeholder="Search item, store, note, payment rail, or person..."
+                aria-label="Search Monthly Expenses"
+              />
+              <select id="monthlySizeFilter" aria-label="Filter by Spend Size">
+                <option value="all">All Sizes</option>
+                <option value="micro">Small Leaks</option>
+                <option value="medium">Medium</option>
+                <option value="big">Big Spends</option>
+                <option value="family">Family Only</option>
+              </select>
+            </div>
+            <div class="expense-list" id="monthlyFullExpenseList"></div>
+          </div>
+        </section>
+
+        <!-- ================================================================
+             VIEW 3: FAMILY SHARE & HOUSEHOLD STATEMENT
+             ================================================================ -->
+        <section class="view-panel" id="view-family" aria-label="Family Expense Sharing and Printable Statement">
+          <div class="panel-hero-card">
+            <span class="eyebrow-tag">FAMILY ACCOUNTABILITY</span>
+            <h2 class="panel-main-title">Share Where the Money Went</h2>
+            <p class="section-hint">Share a clean, itemized WhatsApp / iMessage summary or print a formal PDF household statement in 1 tap.</p>
+
+            <div class="share-controls-grid">
+              <label class="field-label">
+                <span>Period</span>
+                <select id="sharePeriodSelect">
+                  <option value="month">Full Month (Oct 1 – Oct 11, 2026)</option>
+                  <option value="today">Today Only (Sun, Oct 11, 2026)</option>
+                  <option value="week">Last 7 Days (Oct 5 – Oct 11, 2026)</option>
+                </select>
+              </label>
+              <label class="field-label">
+                <span>Scope</span>
+                <select id="shareFilterSelect">
+                  <option value="all">All Spendings (Complete Log)</option>
+                  <option value="family">Family, Parents &amp; Household Only</option>
+                  <option value="big">Big Spendings + Category Totals</option>
+                </select>
+              </label>
+            </div>
+
+            <div class="share-action-buttons">
+              <button type="button" class="primary-save-btn" id="nativeShareBtn">
+                Share via WhatsApp / iMessage
+              </button>
+              <button type="button" class="secondary-action-btn" id="copyFamilyTextBtn">
+                Copy Summary Text
+              </button>
+              <button type="button" class="secondary-action-btn" id="printFamilyStatementBtn">
+                Print / Save PDF
+              </button>
+              <button type="button" class="secondary-action-btn" id="exportCsvBtn">
+                Export CSV
+              </button>
+            </div>
+          </div>
+
+          <div class="insight-card no-print">
+            <div class="card-row-between">
+              <h3 class="section-title">WhatsApp / iMessage Preview</h3>
+              <span class="tap-speed-badge" id="copyConfirmBadge">Ready</span>
+            </div>
+            <pre class="share-text-preview" id="familyShareTextPreview"></pre>
+          </div>
+
+          <!-- Printable Statement -->
+          <div class="family-statement-card" id="printableFamilyStatement">
+            <div class="statement-header">
+              <div>
+                <span class="statement-kicker">HOUSEHOLD EXPENSE STATEMENT</span>
+                <h3 class="statement-title" id="stmtTitle">October 2026 Spending Statement</h3>
+                <p class="statement-date">Generated on Sunday, October 11, 2026 · ClearSpend Pro Max</p>
+              </div>
+              <div class="statement-seal">Verified</div>
+            </div>
+            <div class="statement-metrics-grid" id="stmtMetricsGrid"></div>
+            <div class="statement-section">
+              <h4>Category Totals</h4>
+              <div id="stmtCategoryTable"></div>
+            </div>
+            <div class="statement-section">
+              <h4>Itemized Transactions</h4>
+              <div id="stmtItemizedList"></div>
+            </div>
+          </div>
+        </section>
+
+        <!-- ================================================================
+             VIEW 4: IPHONE 13 PRO MAX WIDGETS & SMART REMINDERS
+             ================================================================ -->
+        <section class="view-panel" id="view-widgets" aria-label="iPhone 13 Pro Max Widgets and Smart Reminders">
+          <div class="panel-hero-card">
+            <span class="eyebrow-tag">IPHONE 13 PRO MAX HOME SCREEN</span>
+            <h2 class="panel-main-title">Widgets, Quick Launch &amp; Reminders</h2>
+            <p class="section-hint">Keep your daily spending and remaining bank balance pinned on your iPhone 13 Pro Max Home Screen, with 0-tap direct launch into Today.</p>
+          </div>
+
+          <div class="insight-card">
+            <h3 class="section-title">Live iOS Home Screen Widgets</h3>
+            <p class="section-hint">Tap any widget below to test its direct 1-tap deep link:</p>
+
+            <div class="ios-widgets-showcase">
+              <!-- Medium 4x2 iOS Widget -->
+              <div class="ios-widget-medium">
+                <div class="widget-top-row">
+                  <span class="widget-brand">CLEARSPEND · SUN OCT 11</span>
+                  <span class="widget-acct-pill" id="wMedAccount">Bank Left: Rs 184,550</span>
+                </div>
+                <div class="widget-mid-row">
+                  <div class="widget-main-stat">
+                    <span class="widget-caption">Spent Today</span>
+                    <strong class="widget-big-num" id="wMedTodaySpent">Rs 16,670</strong>
+                    <span class="widget-sub-caption" id="wMedSafeSub">Safe/day: Rs 4,580 · 3 items</span>
+                  </div>
+                  <div class="widget-quick-buttons">
+                    <button type="button" class="widget-tap-btn" data-widget-action="quick-add">+ Log Now</button>
+                    <button type="button" class="widget-tap-btn widget-tap-secondary" data-widget-action="family">Share</button>
+                  </div>
+                </div>
+                <div class="widget-progress-mini">
+                  <div class="widget-progress-fill" id="wMedProgressFill" style="width: 55%"></div>
+                </div>
+                <div class="widget-bottom-row">
+                  <span id="wMedBudgetLeft">Oct Budget Left: Rs 79,550</span>
+                  <span class="widget-deep-hint">Opens Today Directly ›</span>
+                </div>
+              </div>
+
+              <!-- Small 2x2 + Lock Screen Widget -->
+              <div class="ios-widget-pair">
+                <div class="ios-widget-small" data-widget-action="today">
+                  <span class="widget-brand">TODAY · OCT 11</span>
+                  <strong class="widget-sm-num" id="wSmTodaySpent">Rs 16,670</strong>
+                  <span class="widget-sm-meta" id="wSmSafe">Safe: Rs 4,580/d</span>
+                  <span class="widget-sm-cta">+ Tap to Log ›</span>
+                </div>
+                <div class="ios-widget-lockscreen" data-widget-action="recall">
+                  <span class="lock-title">Lock Screen Widget</span>
+                  <strong class="lock-stat" id="wLockStat">Left: Rs 79,550</strong>
+                  <span class="lock-sub">Tap for 20s Evening Recall</span>
+                </div>
+              </div>
+            </div>
+
+            <div class="widget-setup-steps">
+              <h4>Pin to Your iPhone 13 Pro Max Home Screen:</h4>
+              <ol class="clean-steps-list">
+                <li><strong>Standalone Full-Screen App:</strong> Open in iPhone Safari → tap <strong>Share → Add to Home Screen</strong>. Launches directly into Today's Spending (`/?view=today`) with zero browser chrome.</li>
+                <li><strong>Live Native iOS Widget (Scriptable):</strong> Copy the Scriptable widget code below to render a live Small or Medium widget on your iPhone 13 Pro Max Home Screen powered by <code>/api/widget-summary</code>.</li>
+              </ol>
+              <div class="share-action-buttons">
+                <button type="button" class="secondary-action-btn" id="copyScriptableCodeBtn">Copy iOS Widget Script</button>
+                <button type="button" class="secondary-action-btn" id="testWidgetApiBtn">Inspect Live Widget JSON</button>
+              </div>
+              <pre class="code-preview-box hidden" id="widgetCodePreviewBox"></pre>
+            </div>
+          </div>
+
+          <div class="insight-card">
+            <h3 class="section-title">Daily Recall Reminders</h3>
+            <p class="section-hint">Get a gentle evening prompt so small cash or card spends are never forgotten:</p>
+
+            <div class="reminder-controls-grid">
+              <label class="field-label">
+                <span>Evening Recall Time</span>
+                <input type="time" id="reminderTimeInput" value="21:00" />
+              </label>
+              <label class="field-label">
+                <span>Low Balance Alert</span>
+                <input type="number" id="lowBalanceThresholdInput" value="25000" step="1000" />
+              </label>
+            </div>
+
+            <div class="share-action-buttons">
+              <a href="/api/reminder.ics?time=21:00" id="downloadIcsAlarmLink" class="primary-save-btn link-btn" download="clearspend-daily-recall.ics">
+                Add Daily Alarm to iPhone (.ics)
+              </a>
+              <button type="button" class="secondary-action-btn" id="enableWebNotifBtn">
+                Enable Push Alert
+              </button>
+              <button type="button" class="secondary-action-btn" id="triggerRecallDemoBtn">
+                20s Recall Checklist
+              </button>
+            </div>
+          </div>
+        </section>
+
+        <!-- ================================================================
+             VIEW 5: VERIFIED UI/UX STANDARDS & USABILITY AUDIT
+             ================================================================ -->
+        <section class="view-panel" id="view-ux" aria-label="Verified UI/UX Principles and Usability Testing Report">
+          <div class="panel-hero-card">
+            <span class="eyebrow-tag">OCTOBER 2026 DESIGN &amp; HCI BENCHMARK</span>
+            <h2 class="panel-main-title">Verified UX Architecture</h2>
+            <p class="section-hint">Engineered using Apple's iOS Human Interface Guidelines, Nielsen Norman Group heuristics, Fitts's Law thumb-zone ergonomics, and behavioral mental accounting.</p>
+          </div>
+
+          <div class="insight-card">
+            <div class="card-row-between">
+              <h3 class="section-title">Live Usability &amp; HIG Verification</h3>
+              <button type="button" class="pill-cta-btn" id="runLiveAuditBtn">Re-Verify</button>
+            </div>
+            <div class="audit-results-grid" id="liveAuditResultsGrid"></div>
+          </div>
+
+          <div class="insight-card">
+            <h3 class="section-title">Industry Frameworks Applied</h3>
+            <div class="framework-cards-list">
+              <article class="framework-item">
+                <div class="fw-badge">Apple iOS Human Interface Guidelines (HIG)</div>
+                <h4>iPhone 13 Pro Max (428×926 pt) Optical &amp; Touch Precision</h4>
+                <p>Tabular numerals (<code>tabular-nums</code>), minimum 44×44pt interactive targets, safe-area inset compliance, and minimal 1px hairline visual hierarchy.</p>
+              </article>
+              <article class="framework-item">
+                <div class="fw-badge">Jakob Nielsen — 10 Usability Heuristics (NN/g)</div>
+                <h4>#1 System Status Visibility &amp; #6 Recognition Over Recall</h4>
+                <p>Top pulse bar keeps Bank Balance, Budget Left, and Safe Daily Limit continuously visible. Currency-aware PKR &amp; USD Memory Chips let you recognize daily habits instead of typing from memory.</p>
+              </article>
+              <article class="framework-item">
+                <div class="fw-badge">Fitts's Law &amp; Steven Hoober's Thumb-Zone Research</div>
+                <h4>One-Handed Reach on a 6.7-Inch Display</h4>
+                <p>High-frequency actions (Quick Entry, Category Pills, Save CTA, and 5-Tab Bar) reside in the natural bottom thumb arc while top areas remain glanceable.</p>
+              </article>
+              <article class="framework-item">
+                <div class="fw-badge">Hick's Law &amp; Don Norman's Progressive Disclosure</div>
+                <h4>0-Tap Direct Today Launch &amp; Collapsible Metadata</h4>
+                <p>Opens directly on Today's Ledger (`Oct 11, 2026`). Primary logging requires only Amount + Item, while secondary fields (Account Rail, Who For, Store, Note) expand on demand.</p>
+              </article>
+              <article class="framework-item">
+                <div class="fw-badge">Thaler &amp; Kahneman — Behavioral Mental Accounting</div>
+                <h4>Currency-Aware Micro-Spend Leak Detection &amp; Safe Daily Pacing</h4>
+                <p>Dynamically adapts micro-spend leak thresholds (<code>&lt; Rs 1,000</code> in PKR, <code>&lt; $15</code> in USD) and computes a rolling daily safe allowance so your account never unexpectedly hits zero.</p>
+              </article>
+            </div>
+          </div>
+        </section>
+
+      </main>
+
+      <!-- Minimal 5-Tab Bottom Dock with Crisp Vector SVG Icons -->
+      <nav class="ios-tab-bar no-print" role="navigation" aria-label="Primary App Navigation">
+        <button type="button" class="tab-btn active" data-tab="today" id="tabBtnToday">
+          <svg class="tab-svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="3"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/><path d="M9 16l2 2 4-4"/></svg>
+          <span class="tab-label">Today</span>
+        </button>
+        <button type="button" class="tab-btn" data-tab="monthly" id="tabBtnMonthly">
+          <svg class="tab-svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg>
+          <span class="tab-label">Insights</span>
+        </button>
+        <button type="button" class="tab-btn" data-tab="family" id="tabBtnFamily">
+          <svg class="tab-svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+          <span class="tab-label">Family</span>
+        </button>
+        <button type="button" class="tab-btn" data-tab="widgets" id="tabBtnWidgets">
+          <svg class="tab-svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="7" rx="1.5"/><rect x="14" y="3" width="7" height="7" rx="1.5"/><rect x="14" y="14" width="7" height="7" rx="1.5"/><rect x="3" y="14" width="7" height="7" rx="1.5"/></svg>
+          <span class="tab-label">Widgets</span>
+        </button>
+        <button type="button" class="tab-btn" data-tab="ux" id="tabBtnUx">
+          <svg class="tab-svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/><path d="M9 12l2 2 4-4"/></svg>
+          <span class="tab-label">UX Lab</span>
+        </button>
+      </nav>
+
+      <!-- iPhone 13 Pro Max Home Indicator -->
+      <div class="ios-home-indicator-wrap no-print" aria-hidden="true">
+        <div class="ios-home-indicator"></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- MODAL 1: 20-SECOND EVENING RECALL ASSISTANT -->
+  <div class="modal-backdrop hidden no-print" id="recallModal" role="dialog" aria-modal="true" aria-labelledby="recallModalTitle">
+    <div class="modal-sheet">
+      <div class="modal-handle"></div>
+      <div class="modal-header">
+        <h3 id="recallModalTitle">20-Second Daily Recall</h3>
+        <button type="button" class="modal-close-btn" data-close-modal="recallModal">✕</button>
+      </div>
+      <p class="modal-desc">Tap any item you paid for on <strong id="recallModalDate">Oct 11, 2026</strong> to log it immediately:</p>
+      <div class="recall-checklist-grid" id="recallChecklistGrid"></div>
+      <div class="modal-footer">
+        <button type="button" class="secondary-action-btn" style="width:100%;" data-close-modal="recallModal">Done — Everything Is Logged</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- MODAL 2: BANK BALANCE RECONCILIATION & GAP DETECTOR -->
+  <div class="modal-backdrop hidden no-print" id="reconcileModal" role="dialog" aria-modal="true" aria-labelledby="reconcileModalTitle">
+    <div class="modal-sheet">
+      <div class="modal-handle"></div>
+      <div class="modal-header">
+        <h3 id="reconcileModalTitle">Bank Balance Gap Check</h3>
+        <button type="button" class="modal-close-btn" data-close-modal="reconcileModal">✕</button>
+      </div>
+      <p class="modal-desc">Enter your actual Bank + Wallet + Cash balance right now to check if any expense went unlogged:</p>
+      <div class="reconcile-summary-box">
+        <div class="card-row-between" style="margin:0;">
+          <span>Expected Balance:</span>
+          <strong id="recExpectedVal">Rs 184,550</strong>
+        </div>
+        <div class="reconcile-input-row">
+          <label for="actualBankInput" id="actualBankInputLabel">Actual Bank + Cash Balance Now:</label>
+          <input type="number" step="any" id="actualBankInput" placeholder="e.g. 182000" />
+        </div>
+        <div class="reconcile-result-box hidden" id="reconcileResultBox"></div>
+      </div>
+      <div class="modal-footer" style="display:flex; gap:8px; flex-direction:column;">
+        <button type="button" class="primary-save-btn hidden" id="logGapAdjustmentBtn">+ Log Missing Gap to Today</button>
+        <button type="button" class="secondary-action-btn" data-close-modal="reconcileModal">Close</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- MODAL 3: ACCOUNT, CURRENCY (PKR / USD) & BUDGET SETUP -->
+  <div class="modal-backdrop hidden no-print" id="setupModal" role="dialog" aria-modal="true" aria-labelledby="setupModalTitle">
+    <div class="modal-sheet">
+      <div class="modal-handle"></div>
+      <div class="modal-header">
+        <h3 id="setupModalTitle">Account, Currency &amp; Budget</h3>
+        <button type="button" class="modal-close-btn" data-close-modal="setupModal">✕</button>
+      </div>
+      <p class="modal-desc">Configure your currency (PKR Rs, USD $, AED, GBP, EUR, SAR), opening balance, and monthly budget, or switch sample profiles.</p>
+      <div class="fields-grid-2">
+        <label class="field-label">
+          <span>Currency</span>
+          <select id="setupCurrencySelect">
+            <option value="PKR">🇵🇰 PKR (Rs — Pakistani Rupee)</option>
+            <option value="USD">🇺🇸 USD ($ — US Dollar)</option>
+            <option value="AED">🇦🇪 AED (UAE Dirham)</option>
+            <option value="GBP">🇬🇧 GBP (£ — British Pound)</option>
+            <option value="EUR">🇪🇺 EUR (€ — Euro)</option>
+            <option value="SAR">🇸🇦 SAR (Saudi Riyal)</option>
+          </select>
+        </label>
+        <label class="field-label">
+          <span>Opening Balance</span>
+          <input type="number" step="any" id="setupStartingBalance" value="285000" />
+        </label>
+      </div>
+      <div class="fields-grid-2" style="margin-top:8px;">
+        <label class="field-label">
+          <span>Monthly Budget</span>
+          <input type="number" step="any" id="setupMonthlyBudget" value="180000" />
+        </label>
+        <label class="field-label">
+          <span>Primary Account Label</span>
+          <input type="text" id="setupAccountName" value="Meezan / SadaPay &amp; Cash" />
+        </label>
+      </div>
+      <div class="share-action-buttons" style="margin-top: 14px;">
+        <button type="button" class="primary-save-btn" id="saveSetupBtn">Save Settings</button>
+        <button type="button" class="secondary-action-btn" id="loadPkrProfileBtn">🇵🇰 Load PKR Sample</button>
+        <button type="button" class="secondary-action-btn" id="loadUsdProfileBtn">🇺🇸 Load USD Sample</button>
+        <button type="button" class="secondary-action-btn" id="clearToEmptyDataBtn">Start Fresh (Empty)</button>
+        <button type="button" class="secondary-action-btn" id="exportJsonBackupBtn">Export JSON</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- MODAL 4: IPHONE 13 PRO MAX INSTALLATION GUIDE WITH LIVE QR CODE -->
+  <div class="modal-backdrop hidden no-print" id="installGuideModal" role="dialog" aria-modal="true" aria-labelledby="installGuideTitle">
+    <div class="modal-sheet">
+      <div class="modal-handle"></div>
+      <div class="modal-header">
+        <h3 id="installGuideTitle">📲 Open on Your iPhone 13 Pro Max Now</h3>
+        <button type="button" class="modal-close-btn" data-close-modal="installGuideModal">✕</button>
+      </div>
+      <div class="install-guide-content">
+        <!-- Scannable QR Code + Live Link Card -->
+        <div class="guide-highlight-box" style="text-align:center;">
+          <strong>Method 1: Point Your iPhone Camera at This QR Code</strong>
+          <p style="margin-bottom:8px;">Open the <strong>Camera</strong> app on your iPhone 13 Pro Max, point it at this QR code, and tap the yellow Safari pop-up:</p>
+          <div style="display:flex; justify-content:center; margin:8px 0;">
+            <img id="liveIphoneQrImg" src="/api/qr.svg" alt="Scan with iPhone 13 Pro Max Camera" style="width:176px; height:176px; border-radius:14px; border:1px solid var(--border-strong); background:#080B11; padding:6px;" />
+          </div>
+          <div style="display:flex; gap:6px; margin-top:8px;">
+            <input type="text" id="liveIphoneUrlInput" readonly value="Loading your live iPhone link..." style="flex:1; min-height:36px; padding:4px 8px; border-radius:8px; border:1px solid var(--border-subtle); background:var(--bg-surface); font-size:11px; color:var(--text-secondary);" />
+            <button type="button" class="pill-cta-btn" id="copyLiveIphoneUrlBtn" style="border-color:var(--border-strong); color:var(--accent-emerald);">Copy Link</button>
+          </div>
+        </div>
+
+        <div class="guide-highlight-box">
+          <strong>Method 2: Pin to Your iPhone Home Screen (3 Taps in Safari)</strong>
+          <ol class="clean-steps-list" style="margin-bottom:0;">
+            <li>Once open in <strong>Safari</strong> on your iPhone 13 Pro Max, tap the <strong>Share icon (⬆️)</strong> at the bottom center of the screen.</li>
+            <li>Scroll down the menu and tap <strong>&quot;Add to Home Screen&quot; (➕)</strong>.</li>
+            <li>Tap <strong>&quot;Add&quot;</strong> in the top-right corner. You now have the full-screen <strong>ClearSpend</strong> icon on your Home Screen that opens directly into <strong>Today's Spending (PKR Rs)</strong>!</li>
+          </ol>
+        </div>
+
+        <div style="margin-bottom:10px;">
+          <a href="/download/ClearSpend-iPhone.html" download="ClearSpend-iPhone-13-Pro-Max.html" class="secondary-action-btn" style="display:flex; align-items:center; justify-content:center; text-decoration:none; width:100%;">
+            💾 Download Permanent Offline iPhone File (.html)
+          </a>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="primary-save-btn" style="width:100%;" data-close-modal="installGuideModal">Done</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Minimal Toast Notification -->
+  <div class="ios-toast hidden no-print" id="iosToast" role="status" aria-live="polite"></div>
+
+  <script src="app.js"></script>
+</body>
+</html>
